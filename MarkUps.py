@@ -3,12 +3,13 @@ from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, Men
 
 
 class ReplyKeyboard:
-  @staticmethod
-  def gen_keyboard(*args:tuple[str]):
-    for tup in args:
-      for sec in tup:
-        print(sec)
+
+    @property
+    def start_mk(self) -> ReplyKeyboardMarkup:
+        mk = ReplyKeyboardMarkup(resize_keyboard=True)
+
+        mk.add(KeyboardButton('aweaw'), KeyboardButton('aweaw'))
+
+        return mk
 
 
-ad  =  [('123123', 'sssss'), (1213, 123)]
-ReplyKeyboard.gen_keyboard(*ad)
