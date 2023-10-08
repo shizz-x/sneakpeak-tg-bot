@@ -6,7 +6,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from dotenv import load_dotenv
 
-from UnpackFuncs import UnpackFuncs
+from modls.UnpackFuncs import UnpackFuncs
 
 # logger
 logging.basicConfig(level=logging.INFO)
@@ -22,5 +22,5 @@ dp.middleware.setup(LoggingMiddleware())
 if __name__ == '__main__':
     from aiogram import executor
 
-    UnpackFuncs(dp=dp)
+    UnpackFuncs(bot=bot, dp=dp)
     executor.start_polling(dp)
