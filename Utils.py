@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-
+from urllib.parse import urlparse
 import sqlite3 as sql
 
 
@@ -14,17 +14,42 @@ class Utility:
     self.cursor = self.conn.cursor()
 
     self.__create_tables_if_not_exists()
+  
+
+
+  def add_user(self, user_id: int, referrer_id: int | None = None) -> None:
+    self.cursor.execute("SELECT balance FROM users WHERE user_id = ?", (user_id,))
+    db_res = self.cursor.fetchall()
+    if len(db_res)==0:
+      self.cursor.execute('INSERT INTO users (user_id, referrer_id, balance) VALUES (?,?,?)', 
+                          (user_id, referrer_id if referrer_id is not None else 0, 0,))
+      self.conn.commit()
+
     
+
 
   @staticmethod
   def check_uri_exists(self, uri: str) -> bool | None:
-    
+    url = urlparse(uri)
+    print(url.netloc)
     pass
 
   def __create_tables_if_not_exists(self):
     self.cursor.execute(f'''
       CREATE TABLE IF NOT EXISTS avaliable_sites (
-        id id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         domain TEXT
       )
     ''')
+
+    self.cursor.execute(f'''
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        referrer_id INTEGER,
+        balance INTEGER
+      )
+      ''')
+    
+    
+    self.conn.commit()

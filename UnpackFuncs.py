@@ -1,4 +1,4 @@
-from aiogram import Dispatcher, types
+from aiogram import Dispatcher, types, Bot
 from MarkUps import ReplyKeyboard as KB
 from Utils import Utility
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -14,10 +14,14 @@ class __FSM__(StatesGroup):
 class UnpackFuncs:
     dp: Dispatcher
     keyboard: KB
-    
-    def __init__(self, dp: Dispatcher):
-        self.dp = dp
+    bot: Bot
+
+    def __init__(self, bot: Bot, dp: Dispatcher):
+        self.dp =       dp
         self.keyboard = KB()
+        self.bot =      bot
+        self.utils =    Utility()
+
 
         self.__unpack()
 
@@ -26,6 +30,24 @@ class UnpackFuncs:
         @self.dp.message_handler(commands=['start'])
         async def start(msg: types.Message):
 
+            start_command = msg.text
+            referrer_id = start_command[7:]
+
+
+
+            if referrer_id != '':
+                if referrer_id != str(msg.from_user.id):
+                    try:
+                        self.utils.add_user(msg.from_user.id, int(referrer_id))
+                        await self.bot.send_message(referrer_id, 'НОВЫЙ РЕФЧИК ПОДЪЕХАЛ')
+                    except Exception as e:
+                        print(e)
+                        pass
+                else:
+                    self.utils.add_user(msg.from_user.id)
+                    
+            else:
+                self.utils.add_user(msg.from_user.id)
             await msg.reply(
                 'SEE YA', 
                 reply_markup=self.keyboard.start_mk
@@ -72,7 +94,9 @@ class UnpackFuncs:
         pass
     async def __additional_info(self) -> None:
         pass
-    async def __refferal_system(self) -> None:
+    async def __refferal_system(self, msg: types.Message) -> None:
+        
+        await self.bot.send_message(msg.from_user.id, f"<a href='https://t.me/Sneakers_Peak_Bot?start={msg.from_user.id}'>URL</a>", parse_mode='HTML')
         pass
 
 
