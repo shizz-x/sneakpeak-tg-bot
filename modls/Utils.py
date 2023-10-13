@@ -1,4 +1,5 @@
 from __future__ import annotations
+import re
 
 import validators
 from urllib.parse import urlparse
@@ -45,30 +46,37 @@ class Utility:
 
   def check_uri_exists(self, uri: str) -> bool:
 
-    is_link = self.is_link(uri)
-    if is_link:
-
-      domain = self.get_domain(uri).replace('www.', '')
-
+    domain = self.check_url_domain(uri)
+    if domain:
 
       self.cursor.execute("SELECT * FROM avaliable_sites")
       db_res = self.cursor.fetchall()
 
       for row in db_res:
+        print(row)
         if row[1].__contains__(domain):
+          print('-----------------------------------------')
           return True
     return False
 
 
-    pass
-  def get_domain(self,url) -> str:
-    parsed_url = urlparse(url)
-    return parsed_url.netloc
+    
+  def check_url_domain(self, url:str) -> bool | str:
+    # Паттерн для проверки правильности ссылки
+    url = url.replace('www.', '')
+    url_pattern = re.compile(r"(http|https)://[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}(/\S*)?")
 
-  def is_link(self, url:str):
-    if not url.startswith('http'):
-      return validators.url('http://'+url)
-    return validators.url(url)
+    if url_pattern.match(url):
+        # Если строка является ссылкой, возвращаем домен ссылки
+        domain = re.findall(r"(?<=://)(.*?)(?=/|$)", url)
+        return domain[0]
+    elif re.match(r"^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$", url):
+        # Если строка содержит только домен, возвращаем домен
+        return url
+    else:
+        # Если строка не является ссылкой или доменом, возвращаем False
+        return False
+
 
   def __create_tables_if_not_exists(self):
     self.cursor.execute(f'''

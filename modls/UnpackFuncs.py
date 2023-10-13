@@ -8,7 +8,8 @@ from aiogram.dispatcher import FSMContext
 
 class __FSM__(StatesGroup):
     message = State()
-
+class __FSMM__(StatesGroup):
+    message = State()
 
 
 class UnpackFuncs:
@@ -78,22 +79,24 @@ class UnpackFuncs:
         
             
         await msg.answer('Отправьте ссылку на сайт с которого хотите заказать товар: ')
-        await __FSM__.message.set()
-
-
-        @self.dp.message_handler(state=__FSM__.message)
+        await __FSMM__.message.set()
+            
+        @self.dp.message_handler(state=__FSMM__.message)
         async def procces_answer(msg: types.Message, state: FSMContext):
+            if not msg.text.startswith('🧮'):
+
+
+                url_valid = self.utils.check_uri_exists(uri=msg.text)
+
+                if url_valid:
+
+                    await msg.reply('Отсюда можно заказать')
+                else:
+                    await msg.reply('Пока что не можем привезти, но вы можете обратиться в поддержку для предложения рассмотрения этого сайта.')
+                await state.finish()
 
 
 
-            url_valid = self.utils.check_uri_exists(uri=msg.text)
-
-            if url_valid:
-
-                await msg.reply('Отсюда можно заказать')
-            else:
-                await msg.reply('Пока что не можем привезти, но вы можете обратиться в поддержку для предложения рассмотрения этого сайта.')
-            await state.finish()
 
         return None
     async def __gen_price(self, msg: types.Message) -> None:
@@ -103,12 +106,14 @@ class UnpackFuncs:
 
         @self.dp.message_handler(state=__FSM__.message)
         async def procces_answer(msg: types.Message, state: FSMContext):
-            try:
-                await msg.reply(str(int(msg.text) * 107 + 6000) + ' цена в рублях')
-            except Exception as e:
-                await msg.reply('Введите корректную целую сумму')
-            finally:
-                await state.finish()
+            if not msg.text.startswith('🔎'):
+
+                try:
+                    await msg.reply(str(int(msg.text) * 107 + 6000) + ' цена в рублях')
+                except Exception as e:
+                    await msg.reply('Введите корректную целую сумму')
+                finally:
+                    await state.finish()
 
 
         pass
@@ -126,7 +131,7 @@ class UnpackFuncs:
 
     async def __refferal_system(self, msg: types.Message) -> None:
         
-        await self.bot.send_message(msg.from_user.id, f"Ваша реферальная ссылка <a href='https://t.me/Sneakers_Peak_Bot?start={msg.from_user.id}'>URL</a>\nКоличество ваших рефералов: {self.utils.get_referrals(msg.from_user.id)}\nБаланс: {self.utils.get_balance(msg.from_user.id)}руб", parse_mode='HTML')
+        await self.bot.send_message(msg.from_user.id, f"Ваша реферальная ссылка `https://t.me/Sneakers_Peak_Bot?start={msg.from_user.id}` **(CLICK)**\nКоличество ваших рефералов: {self.utils.get_referrals(msg.from_user.id)}\nБаланс: {self.utils.get_balance(msg.from_user.id)}руб", parse_mode='Markdown')
 
 
 
